@@ -1,5 +1,3 @@
-
-
 select_col <- function(data, columns) { 
   clean <- data %>% 
     na.omit(data) %>% 
@@ -7,5 +5,3 @@ select_col <- function(data, columns) {
     mutate(new_col = {{column}}/1000)
   return(clean) 
 }
-
-
