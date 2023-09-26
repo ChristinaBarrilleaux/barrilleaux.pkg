@@ -5,6 +5,7 @@ select_col <- function(data, columns) {
     na.omit(data) %>% 
     select(all_of({{columns}})) %>% 
     mutate(new_col = {{column}}/1000)
-  return(clean)
+  return(clean) 
 }
+
 
