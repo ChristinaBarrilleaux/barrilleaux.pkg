@@ -1,0 +1,272 @@
+---
+title: "Project Two"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Due Oct. 13 at 11:59 PM. 
+
+For this first part of the exam, you can either use `surveys_complete.csv` or your own data. If you are using your own data, you must have data in which you think you have a numerical predictor variable and a numerical response variable. If you are using `surveys_complete`, you can use weight and hindfoot_length for this.
+
+Save this file in your `projects` directory. You can either save it in a project two subdirectory, or just put it in projects. Either way is fine.
+
+
+1) Load in your data. Which variable will you be using as a predictor, and which as a response? (5 pts)
+
+```{r}
+surveys_complete <- read_csv("surveys.csv")
+
+surveys_complete <- surveys_complete %>% 
+  na.omit()
+
+```
+
+```
+#Predictor: weight
+#Response: hindfoot_length
+```
+
+2) Plot the two against each other with a scatter plot. Do the data appear to be related linearly? (5 pts)
+
+
+```{r}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length, color = species_id)) + geom_point()
+```
+
+```
+
+# Note: my below answer makes more sense to me now that I'm lower in the assignment. I'll keep the answer the same because it was my initial observations, though. 
+
+#It doesn't appear to be linear. Maybe at the beginning between some species, but the slope of the weight and hindfoot length levels out with the yellow species and that appears like it would throw off the slops. I added the color for species_id to try to see if any are linear for a particular species and it still appears unclear but it is more linear for specific species. 
+```
+
+
+3) Fit the linear model. View the summary. (5 pts)
+
+
+```{r}
+surveys_model_fit <- lm(hindfoot_length ~ weight, surveys_complete)
+
+summary(surveys_model_fit)
+```
+
+4) Does the summary make sense when you compare it to the plot you made? Does our model have good predictive power? Evaluate the residual standard error, intercept, and R-Squared in particular. Would you say your predictor predicts the response?  (10 pts)
+
+
+```
+# I can see how some of the species in the plot would follow closely to the summary with some having a more clear slope but as a whole and looking at all of the species combined, it appears less clear how the plot and the summary connect to each other. It appears that a number of the yellow points would be lower than the slope and while this does account for the higher positive residual value, I am having a hard time making the linear relationship match the plot visually. 
+
+# The redisuals do not show a close to normal distribution where there is not a large difference between the positive and negatives, but I would have expected to see a larger nagative value for the plot shown.The high positive residual values could be accounted for the fact the yellow points would push the slope down to be more gradual to account for the higher weights in different species. This would leave a larger number of points above the slope.   
+# The intercepts show that the increase in weight would increase the hindfoot_length by 2.56 (mm?). This would make sense if not for the yellow points that have a wide range of weights for a simialr hindfoot_length. But for other speices in the graph, this would make sense. The *** indicate there is a low p-value and these results are significant. It also helps there is a lower standard error but this could be different for the different species. 
+
+# The R-squared value is lower but this appears to be a normal thing for biological analyses. It also doesn't help the clarity that there are multiple species that have a wider range of weights and hindfoot_lengths. Maybe if this was done for individual species, more of the hindfoot_length values would be predicted by the weight. 
+```
+
+
+5) Plot the model on the graph. Increase the size of the text so it is comfortably readable at 5 feet. Make sure axis labels are readable and not overlapping with one another. (5 pts)
+
+```{r}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) + 
+   geom_point(size = 0.5) + 
+  geom_smooth(method = "lm", color = "navy", size = 0.7, fill = "green1") + 
+  labs(x = "Weight", y = "Hindfoot_length", title = "Linear Model of Weight and Hindfoot_length")
+  
+
+
+
+```
+
+
+6) Check the normality of the residuals. Do they look OK? Are we violating assumptions? (5 pts)
+
+```{r}
+
+augment(surveys_model_fit) -> augmented_fit
+
+augmented_fit
+
+qqnorm(augmented_fit$.resid)
+qqline(augmented_fit$.resid, col = "blue")
+
+
+# The normality of the residuals do not look like they are acceptable values. The tails in the graph deviate a good deal from what would be considered normal. A linear model does not look like a good fit for the data. 
+#These show that the linear model does not show a linear relationship between the points and I suspect the different species plays a big role in the model not fitting.
+
+``` 
+
+Why is normality of residuals important? 
+
+```{r}
+
+#Checking the normality of the residuals gives an indication of whether the residuals in the model are normal and if the data matches the predicted results. A Q-Q plot with a graph that does not follow the model would show that the relationship should be questioned. There will always be differences in observed and predicted data but if the data follows an exponential relationship, the residuals would show this and a lineal model would not be a good fit to do statistical analysis on the data. 
+
+```
+
+7) If you are using `surveys_complete`: Is there interspecific variation in the linear model? Hint: look at our prior work with facet plots. (15 pts) 
+
+If you are *not* using  `surveys_complete`: Do you think there are groupings within your data that may have a separate linear model? Try grouping the data by that variable and redoing the lm. If this would not make sense for your data, you may also attempt to do multiple predictor variables. (15 pts)
+
+```{r}
+
+#Interspecific variation would indicate differences in the models based on differences between species and my earlier observations on the data show that there would be interspecific varitation just based on the differences in how the different species showed up on the graph. 
+#Testing it out, still. 
+
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) + 
+   geom_point(size = 0.5) + 
+  geom_smooth(method = "lm", color = "navy", size = 0.7, fill = "green1") + 
+  labs(x = "Weight", y = "Hindfoot_length", title = "Linear Model of Weight and Hindfoot_length") + 
+  facet_wrap(vars(species_id))
+
+
+#It is difficult to tell with some species because they just appear to be blobs on graphs to me. If I zoom in far enough I can see some linear relationships but I don't know if that is helpful. Zoom into many graphs far enough it makes sense. Some others, though, do make more sense when they are separated into their own graphs with facets. The linear relationships between species makes more sense than the linear relationships between the different species. So there would appear to be interspecific vartiation in the prior model. 
+
+```
+
+
+```{r} 
+
+surveys_sh <- surveys_complete %>% 
+  select(weight, hindfoot_length, species_id, sex) %>% 
+  filter(species_id == "SH")
+
+
+ggplot(surveys_sh, aes(x = weight, y = hindfoot_length)) + 
+   geom_point(size = 0.5) + 
+  geom_smooth(method = "lm", color = "navy", size = 0.7, fill = "green1") + 
+  labs(x = "Weight", y = "Hindfoot_length", title = "Linear Model of Weight and Hindfoot_length")
+
+```
+
+
+```{r} 
+
+surveys_sh_model_fit <- lm(hindfoot_length ~ weight, surveys_sh)
+
+summary(surveys_sh_model_fit)
+
+
+#For the SH species, the residuals make more sense with a lower value for the positive, but the significance did go down based on the p-value. I would likely need to check each species to check how the linear model fits each one to test the relationship between weight and hindfoot_length. The standard errors will also increase due to the changes in data. The R-squared is also much lower so it suggests that the weight does not influence the hindfoot_length in this species as much as hypothesized. 
+
+```
+```{r}
+
+augment(surveys_sh_model_fit) -> augmented_fit_sh
+
+augmented_fit_sh
+
+qqnorm(augmented_fit_sh$.resid)
+qqline(augmented_fit_sh$.resid, col = "blue")
+
+#Checking the normality of the residuals for SH in particular show a better tail relationship to the line. There is still some deviation but it matches much more than a model with all the species together. 
+
+```
+
+
+
+
+
+## Part Two
+
+In this portion, you are free to use your own data if you have a categorical predictor variable and a response variable. Otherwise, you may use the columns sex and weight in `surveys_complete`
+
+1) First, plot the data grouped by sex (5 pts)
+
+
+```{r}
+
+surveys_sex <- surveys_complete %>% 
+  group_by(sex)
+
+surveys_sex
+
+ggplot(surveys_complete, aes(x = sex, y = weight, color = sex)) + 
+   geom_jitter(size = 0.2) 
+  
+```
+
+2) Try an ANOVA of this data (5 pt)
+
+
+```{r}
+aov(surveys_sex_model_fit) -> anova_surveys_sex_model_fit
+summary(anova_surveys_sex_model_fit)
+
+```
+
+3) How about a linear model? What information does this give you that an ANOVA can't? (5 pts)
+
+
+```{r}
+
+surveys_sex_model_fit <- lm(weight ~ sex, surveys_complete)
+
+summary(surveys_sex_model_fit)
+
+```
+
+```
+#ANOVA focuses on group means and shows if there is a relationship between variables while linear models also show statistical relationships so see if one variable is influenced by another but without the means. This means the linear models can show more predictive ability in relationships and the confidence there is in the models. 
+```
+
+3) Plot the lm with the data, with points colored by sex. (10 pts)
+
+
+```{r}
+ggplot(surveys_sex, aes(x = sex, y = weight, color = sex)) + 
+   geom_jitter(size = 0.1) + 
+  geom_smooth(method = "lm", color = "navy", linewidth = 0.7, fill = "green1") +
+  annotate("text", x = 0.7, y = 270, label = "R^2 == 7.351e-05", parse = T) +
+  theme_bw()
+```
+
+
+
+
+4) Choose any model we've looked at so far, but use two predictor variables. Perform an LM, plot the results, and state if this changes your interpretation of the relationship between variables (10 pts)
+
+```{r}
+
+surveys_sh2_model_fit <- lm(hindfoot_length ~ weight + sex, surveys_sh)
+
+summary(surveys_sh2_model_fit)
+
+```
+
+```{r}
+
+ggplot(surveys_sh, aes(x = weight, y = hindfoot_length, color = sex)) +
+geom_point(size = 0.5) +
+geom_smooth(method = "lm", color = "navy", size = 0.7, fill = "green1")
+
+```
+
+```
+# Looking at the residuals of both one predictor (weight) and two predictors(weight and sex) for the SH species, there was not much of a change in how it fit the graph besides the male and female being scattered around the plot. The sex distribution appears to be completely random with no indication that the sex influences the hindfoot length of the SH species. 
+
+#The p-value for weight alone was 6.54e-9, which is smaller than the weight and sex p-value of 4.40e-8. The weight is significant but the sex does not appear to be a factor in the hindfoot length. There are some small changes like the expected length decreasing by 0.24 mm if the indvidual is male but looking at the graph and the p-values, I would assume this is possibly due to chance. 
+
+# There was also not much of a change in the R squared values, the difference being sex and weight having a 0.02 higher value than weight alone. This is telling me that not a lot of the data can be explained by this model and the additive weight and sex predictors don't make much of a difference. It oculd be argued there is a slight increase in predictability with sex and weight but I don't think that it's significant.
+```
+
+
+## Part Three
+
+
+1) Add and commit this document (5 pts)
+
+```
+#Save to project directory, click commit, add note for later reference, commit. 
+```
+
+2) Push your changes to github (10 pts)
+
+```
+#Click the git tab, push to github, enter username. 
+```
+
+
+
+# MS students
+
+My expectation is that you'll do this with your own data. If any part of this doesn't make sense with your data, please get in touch ASAP so we can work it out.
