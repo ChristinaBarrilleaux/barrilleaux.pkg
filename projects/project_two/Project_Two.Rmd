@@ -256,13 +256,16 @@ geom_smooth(method = "lm", color = "navy", size = 0.7, fill = "green1")
 1) Add and commit this document (5 pts)
 
 ```
-#Save to project directory, click commit, add note for later reference, commit. 
+#Save to project directory, click check box, click commit, add note for later reference, commit. 
 ```
 
 2) Push your changes to github (10 pts)
 
 ```
 #Click the git tab, push to github, enter username. 
+
+#My attempt to push this to github using the above method failed with authentication issue. So I downloaded the file to my computer and uploaded it directly to the website from github. 
+
 ```
 
 
